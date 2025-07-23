@@ -6,7 +6,7 @@
 #    By: kmaeda <kmaeda@student.42berlin.de>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/22 12:02:35 by kmaeda            #+#    #+#              #
-#    Updated: 2025/07/22 12:09:07 by kmaeda           ###   ########.fr        #
+#    Updated: 2025/07/23 14:25:22 by kmaeda           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,10 +19,13 @@ INCLUDES = -I. -ILibft
 LIBFT_DIR = Libft
 LIBFT_LIB = $(LIBFT_DIR)/libft.a
 
-SRCS = 
+SRCS = main.c pipex.c pipex_utils.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
+
+$(LIBFT_LIB):
+	$(MAKE) -C $(LIBFT_DIR)
 
 $(NAME): $(OBJS) $(LIBFT_LIB)
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) $(LIBFT_LIB) -o $(NAME)
@@ -41,4 +44,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-
