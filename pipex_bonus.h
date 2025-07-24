@@ -24,14 +24,11 @@ typedef struct s_data
 {
 	int		infile;
 	int		outfile;
-	int		prev_fd;
-	int		fd[2];
-	char	*path1;
-	char	*path2;
+	int		cmd_count;
 	char	*s_path;
-	char	**cmd1;
-	char	**cmd2;
-	char	**paths;
+	char	**path;
+	char	***full_paths;
+	char	***cmds;
 }	t_data;
 
 int		get_path(char **envp, char **argv, t_data *data);

@@ -1,24 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex_utils.c                                      :+:      :+:    :+:   */
+/*   pipex_utils_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kmaeda <kmaeda@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/23 10:22:52 by kmaeda            #+#    #+#             */
-/*   Updated: 2025/07/23 17:39:38 by kmaeda           ###   ########.fr       */
+/*   Updated: 2025/07/24 11:49:38 by kmaeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+#include "pipex_bonus.h"
 
 static void	free_array(char **array)
 {
 	int	i;
 
 	i = 0;
-	if (!array)
-		return ;
 	while (array[i])
 	{
 		free(array[i]);
@@ -40,21 +38,15 @@ void	ft_clean(t_data *data)
 	if (data->paths)
 		free_array(data->paths);
 	if (data->path1)
-	{
 		free(data->path1);
-		data->path1 = NULL;
-	}
 	if (data->path2)
-	{
 		free(data->path2);
-		data->path2 = NULL;
-	}
 }
 
 void	error_exit(t_data *data, char *msg)
 {
 	ft_putstr_fd(msg, 2);
-	ft_clean(data);
+	ft_clean_bonus(data);
 	exit(1);
 }
 
@@ -77,6 +69,10 @@ static char	*find_path(t_data *data, char *cmd)
 		free(full_path);
 		i++;
 	}
+	if (temp)
+		free(temp);
+	if (full_path)
+		free(full_path);
 	return (NULL);
 }
 
@@ -96,10 +92,6 @@ int	get_path(char **envp, char **argv, t_data *data)
 	}
 	data->cmd1 = ft_split(argv[2], ' ');
 	data->cmd2 = ft_split(argv[3], ' ');
-	if (!data->cmd1 || !data->cmd1[0] || !*(data->cmd1[0]))
-		return (1);
-	if (!data->cmd2 || !data->cmd2[0] || !*(data->cmd2[0]))
-		return (1);
 	data->paths = ft_split(data->s_path, ':');
 	data->path1 = find_path(data, data->cmd1[0]);
 	data->path2 = find_path(data, data->cmd2[0]);
