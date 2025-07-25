@@ -6,51 +6,13 @@
 /*   By: kmaeda <kmaeda@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/23 10:22:52 by kmaeda            #+#    #+#             */
-/*   Updated: 2025/07/24 11:49:38 by kmaeda           ###   ########.fr       */
+/*   Updated: 2025/07/25 18:30:49 by kmaeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-static void	free_array(char **array)
-{
-	int	i;
-
-	i = 0;
-	while (array[i])
-	{
-		free(array[i]);
-		i++;
-	}
-	free(array);
-}
-
-void	ft_clean(t_data *data)
-{
-	if (data->infile >= 0)
-		close(data->infile);
-	if (data->outfile >= 0)
-		close(data->outfile);
-	if (data->cmd1)
-		free_array(data->cmd1);
-	if (data->cmd2)
-		free_array(data->cmd2);
-	if (data->paths)
-		free_array(data->paths);
-	if (data->path1)
-		free(data->path1);
-	if (data->path2)
-		free(data->path2);
-}
-
-void	error_exit(t_data *data, char *msg)
-{
-	ft_putstr_fd(msg, 2);
-	ft_clean_bonus(data);
-	exit(1);
-}
-
-static char	*find_path(t_data *data, char *cmd)
+static char	*find_path(char **paths, char *cmd)
 {
 	int		i;
 	char	*temp;
@@ -59,24 +21,96 @@ static char	*find_path(t_data *data, char *cmd)
 	i = 0;
 	temp = NULL;
 	full_path = NULL;
-	while (data->paths[i] != NULL)
+	while (paths[i])
 	{
-		temp = ft_strjoin(data->paths[i], "/");
+		temp = ft_strjoin(paths[i], "/");
+		if (!temp)
+			return (NULL);
 		full_path = ft_strjoin(temp, cmd);
-		if (access(full_path, X_OK) == 0)
-			return (free(temp), full_path);
 		free(temp);
+		if (!full_path)
+			return (NULL);
+		if (access(full_path, X_OK) == 0)
+			return (full_path);
 		free(full_path);
 		i++;
 	}
-	if (temp)
-		free(temp);
-	if (full_path)
-		free(full_path);
 	return (NULL);
 }
 
-int	get_path(char **envp, char **argv, t_data *data)
+static char	*join_args(char **argv, int start, int end)
+{
+	int		i;
+	char	*cmd;
+	char	*temp;
+
+	i = start + 1;;
+	cmd = ft_strdup(argv[start]);
+	while (i <= end)
+	{
+		temp = ft_strjoin(cmd, " ");
+		if (!temp)
+			return (NULL);
+		free(cmd);
+		cmd = ft_strjoin(temp, argv[i]);
+		free(temp);
+		if (!cmd)
+			return (NULL);
+		i++;
+	}
+	return (cmd);
+}
+
+static int	get_commands(int argc, char **argv, t_data *data)
+{
+	int		i;
+	int		start;
+	int		end;
+	int		remainder;
+	char	*cmd_str;
+
+	remainder = (argc - data->offset - 1) % data->cmd_count;
+	i = 0;
+	start = data->offset;
+	while (i < data->cmd_count)
+	{
+		end = start + (argc - data->offset - 1) / data->cmd_count - 1;
+		if (i < remainder)
+			end += 1;
+		cmd_str = join_args(argv, start, end);
+		if (!cmd_str)
+			return (1);
+		data->cmds[i] = ft_split(cmd_str, ' ');
+		free(cmd_str);
+		if (!data->cmds[i])
+			return (1);
+		start = end + 1;
+		i++;
+	}
+	return (0);
+}
+
+static int	parse_commands(int argc, char **argv, t_data *data)
+{
+	int	i;
+
+	i = 0;
+	if (get_commands(argc, argv, data) != 0)
+		return (1);
+	while (i < data->cmd_count)
+	{
+		if (!data->cmds[i] || !data->cmds[i][0])
+			return (1);
+		data->full_paths[i] = ft_split(data->s_path, ':');
+		if (!data->full_paths[i])
+			return (1);
+		data->path[i] = find_path(data->full_paths[i], data->cmds[i][0]);
+		i++;
+	}
+	return (0);
+}
+
+int	get_path(char **envp, int argc, char **argv, t_data *data)
 {
 	int	i;
 
@@ -90,12 +124,15 @@ int	get_path(char **envp, char **argv, t_data *data)
 		}
 		i++;
 	}
-	data->cmd1 = ft_split(argv[2], ' ');
-	data->cmd2 = ft_split(argv[3], ' ');
-	data->paths = ft_split(data->s_path, ':');
-	data->path1 = find_path(data, data->cmd1[0]);
-	data->path2 = find_path(data, data->cmd2[0]);
-	if (!data->path1 || !data->path2)
+	if (!data->s_path)
 		return (1);
+	if (parse_commands(argc, argv, data))
+		return (1);
+	while (i < data->cmd_count)
+	{
+		if (!data->path[i])
+			return (1);
+		i++;
+	}
 	return (0);
 }

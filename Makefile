@@ -6,7 +6,7 @@
 #    By: kmaeda <kmaeda@student.42berlin.de>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/22 12:02:35 by kmaeda            #+#    #+#              #
-#    Updated: 2025/07/23 14:25:22 by kmaeda           ###   ########.fr        #
+#    Updated: 2025/07/25 18:19:36 by kmaeda           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,9 @@ LIBFT_LIB = $(LIBFT_DIR)/libft.a
 SRCS = main.c pipex.c pipex_utils.c
 OBJS = $(SRCS:.c=.o)
 
+BONUS_SRCS = main_bonus.c pipex_bonus.c pipex_utils_bonus.c here_doc_bonus.c clean_bonus.c
+BONUS_OBJS = $(BONUS_SRCS:.c=.o)
+
 all: $(NAME)
 
 $(LIBFT_LIB):
@@ -30,11 +33,14 @@ $(LIBFT_LIB):
 $(NAME): $(OBJS) $(LIBFT_LIB)
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) $(LIBFT_LIB) -o $(NAME)
 
+bonus: $(BONUS_OBJS) $(LIBFT_LIB)
+	$(CC) $(CFLAGS) $(INCLUDES) $(BONUS_OBJS) $(LIBFT_LIB) -o $(NAME)
+
 %.o: %.c pipex.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(BONUS_OBJS)
 	$(MAKE) clean -C $(LIBFT_DIR)
 
 fclean: clean
@@ -43,4 +49,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all bonus clean fclean re
