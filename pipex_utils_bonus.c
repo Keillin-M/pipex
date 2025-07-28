@@ -6,7 +6,7 @@
 /*   By: kmaeda <kmaeda@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/23 10:22:52 by kmaeda            #+#    #+#             */
-/*   Updated: 2025/07/25 18:30:49 by kmaeda           ###   ########.fr       */
+/*   Updated: 2025/07/28 15:23:11 by kmaeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,64 +38,36 @@ static char	*find_path(char **paths, char *cmd)
 	return (NULL);
 }
 
-static char	*join_args(char **argv, int start, int end)
+static int	get_commands(char **argv, t_data *data)
 {
-	int		i;
-	char	*cmd;
-	char	*temp;
+	int	i;
+	int	start;
 
-	i = start + 1;;
-	cmd = ft_strdup(argv[start]);
-	while (i <= end)
-	{
-		temp = ft_strjoin(cmd, " ");
-		if (!temp)
-			return (NULL);
-		free(cmd);
-		cmd = ft_strjoin(temp, argv[i]);
-		free(temp);
-		if (!cmd)
-			return (NULL);
-		i++;
-	}
-	return (cmd);
-}
-
-static int	get_commands(int argc, char **argv, t_data *data)
-{
-	int		i;
-	int		start;
-	int		end;
-	int		remainder;
-	char	*cmd_str;
-
-	remainder = (argc - data->offset - 1) % data->cmd_count;
 	i = 0;
-	start = data->offset;
+	if (data->here_doc)
+		start = 3;
+	else
+		start = 2;
+	data->cmds = malloc(sizeof(char **) * (data->cmd_count + 1));
+	if (!data->cmds)
+		return (1);
 	while (i < data->cmd_count)
 	{
-		end = start + (argc - data->offset - 1) / data->cmd_count - 1;
-		if (i < remainder)
-			end += 1;
-		cmd_str = join_args(argv, start, end);
-		if (!cmd_str)
-			return (1);
-		data->cmds[i] = ft_split(cmd_str, ' ');
-		free(cmd_str);
+		data->cmds[i] = ft_split(argv[i + start], ' ');
 		if (!data->cmds[i])
 			return (1);
-		start = end + 1;
 		i++;
 	}
+	data->cmds[i] = NULL;
 	return (0);
 }
 
-static int	parse_commands(int argc, char **argv, t_data *data)
+static int	parse_commands(char **argv, t_data *data)
 {
 	int	i;
 
 	i = 0;
-	if (get_commands(argc, argv, data) != 0)
+	if (get_commands(argv, data) != 0)
 		return (1);
 	while (i < data->cmd_count)
 	{
@@ -110,7 +82,7 @@ static int	parse_commands(int argc, char **argv, t_data *data)
 	return (0);
 }
 
-int	get_path(char **envp, int argc, char **argv, t_data *data)
+int	get_path(char **envp, char **argv, t_data *data)
 {
 	int	i;
 
@@ -126,7 +98,7 @@ int	get_path(char **envp, int argc, char **argv, t_data *data)
 	}
 	if (!data->s_path)
 		return (1);
-	if (parse_commands(argc, argv, data))
+	if (parse_commands(argv, data))
 		return (1);
 	while (i < data->cmd_count)
 	{

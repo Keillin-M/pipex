@@ -6,7 +6,7 @@
 /*   By: kmaeda <kmaeda@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 15:34:05 by kmaeda            #+#    #+#             */
-/*   Updated: 2025/07/25 18:32:25 by kmaeda           ###   ########.fr       */
+/*   Updated: 2025/07/27 16:00:46 by kmaeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@ typedef struct s_data
 	char	***cmds;
 }	t_data;
 
-int		get_path(char **envp, int argc, char **argv, t_data *data);
+int		get_path(char **envp, char **argv, t_data *data);
 int		heredoc_main(int argc, char **argv, t_data *data, char **envp);
-int		set_offset(t_data *data, int argc);
+int		init_arrays(t_data *data);
 void	parent(t_data *data, char **envp);
 void	error_exit(t_data *data, char *msg);
 void	ft_clean(t_data *data);

@@ -6,7 +6,7 @@
 /*   By: kmaeda <kmaeda@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 16:34:31 by kmaeda            #+#    #+#             */
-/*   Updated: 2025/07/25 18:27:22 by kmaeda           ###   ########.fr       */
+/*   Updated: 2025/07/27 16:07:29 by kmaeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,15 +57,17 @@ int	heredoc_main(int argc, char **argv, t_data *data, char **envp)
 	int	i;
 
 	i = 0;
-	set_offset(data, argc);
+	data->cmd_count = argc - 4;
+	if (init_arrays(data))
+		return (ft_clean(data), 1);
 	if (heredoc_init_files(argc, argv, data))
 		return (1);
-	if (get_path(envp, argc, argv, data))
+	if (get_path(envp, argv, data))
 	{
-		while (i < data->cmd_count)
+		while (i < data->cmd_count && data->cmds[i] && data->cmds[i][0])
 		{
 			if (!data->path[i])
-				ft_printf("command not found: %s\n", argv[i + 3]);
+				ft_printf("command not found: %s\n", data->cmds[i][0]);
 			i++;
 		}
 		return (ft_clean(data), 1);

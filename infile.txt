@@ -1,6 +1,0 @@
-Hello world
-This is a test file
-Pipex project rocks!
-Another test line
-No match here
-Test again

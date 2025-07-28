@@ -6,7 +6,7 @@
 /*   By: kmaeda <kmaeda@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/23 10:24:33 by kmaeda            #+#    #+#             */
-/*   Updated: 2025/07/25 17:05:14 by kmaeda           ###   ########.fr       */
+/*   Updated: 2025/07/28 15:15:51 by kmaeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ static void	first_child(t_data *data, char **envp)
 {
 	close(data->fd[0]);
 	dup2(data->infile, STDIN_FILENO);
+	close(data->infile);
 	dup2(data->fd[1], STDOUT_FILENO);
 	close(data->fd[1]);
 	if (execve(data->path[0], data->cmds[0], envp) == -1)

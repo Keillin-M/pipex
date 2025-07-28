@@ -6,11 +6,31 @@
 /*   By: kmaeda <kmaeda@student.42berlin.de>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/22 12:14:51 by kmaeda            #+#    #+#             */
-/*   Updated: 2025/07/25 18:32:09 by kmaeda           ###   ########.fr       */
+/*   Updated: 2025/07/28 15:22:31 by kmaeda           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
+
+int	init_arrays(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	data->cmds = malloc(sizeof(char **) * (data->cmd_count + 1));
+	data->path = malloc(sizeof(char *) * (data->cmd_count + 1));
+	data->full_paths = malloc(sizeof(char **) * (data->cmd_count + 1));
+	if (!data->cmds || !data->path || !data->full_paths)
+		return (perror("Memory allocation failed\n"), 1);
+	while (i <= data->cmd_count)
+	{
+		data->cmds[i] = NULL;
+		data->path[i] = NULL;
+		data->full_paths[i] = NULL;
+		i++;
+	}
+	return (0);
+}
 
 static int	init_files(int argc, char **argv, t_data *data)
 {
@@ -38,10 +58,12 @@ static int	pipex_main(int argc, char **argv, t_data *data, char **envp)
 	int	i;
 
 	i = 0;
-	set_offset(data, argc);
+	data->cmd_count = argc - 3;
+	if (init_arrays(data))
+		return (ft_clean(data), 1);
 	if (init_files(argc, argv, data))
 		return (ft_clean(data), 1);
-	if (get_path(envp, argc, argv, data))
+	if (get_path(envp, argv, data))
 	{
 		while (i < data->cmd_count)
 		{
@@ -57,40 +79,18 @@ static int	pipex_main(int argc, char **argv, t_data *data, char **envp)
 	return (0);
 }
 
-int	set_offset(t_data *data, int argc)
-{
-	data->offset = 0;
-	if (data->here_doc)
-	{
-		data->cmd_count = argc - 4;
-		data->offset = 3;
-	}
-	else
-	{
-		data->cmd_count = argc - 3;
-		data->offset = 2;
-	}
-	data->cmds = malloc(sizeof(char **) * data->cmd_count);
-	data->full_paths = malloc(sizeof(char **) * data->cmd_count);
-	data->path = malloc(sizeof(char *) * data->cmd_count);
-	if (!data->cmds || !data->full_paths || !data->path)
-		return (1);
-	return (0);
-}
-
 int	main(int argc, char **argv, char **envp)
 {
-	int		here_doc;
 	t_data	data;
 
-	here_doc = 0;
+	data.here_doc = 0;
 	if (argc < 5)
 		return (ft_putstr_fd("Usage: ./pipex infile cmd1 .. cmdn outfile\n", \
 			2), 1);
 	ft_init(&data);
 	if (ft_strncmp(argv[1], "here_doc", 8) == 0)
-		here_doc = 1;
-	if (here_doc)
+		data.here_doc = 1;
+	if (data.here_doc)
 	{
 		if (heredoc_main(argc, argv, &data, envp))
 			return (1);
