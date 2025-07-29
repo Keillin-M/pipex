@@ -27,6 +27,7 @@ static void	read_heredoc(char *limiter, int write_fd)
 			break ;
 		if ((ft_strncmp(line, limiter, lim_len)) == 0 && line[lim_len] == '\n')
 		{
+			get_next_line(-1);
 			free(line);
 			return ;
 		}

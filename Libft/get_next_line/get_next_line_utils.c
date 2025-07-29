@@ -73,7 +73,7 @@ char	*ft_substr_gnl(char *s, unsigned int start, size_t len)
 	i = 0;
 	s_len = ft_strlen_gnl(s);
 	if (start >= s_len)
-		return (ft_emptystr());
+		return (NULL);
 	if (len > s_len - start)
 		len = s_len - start;
 	sub = malloc(len + 1);

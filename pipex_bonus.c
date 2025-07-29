@@ -26,8 +26,9 @@ static void	first_child(t_data *data, char **envp)
 static void	last_child(t_data *data, char **envp)
 {
 	dup2(data->prev_fd, STDIN_FILENO);
-	dup2(data->outfile, STDOUT_FILENO);
 	close(data->prev_fd);
+	dup2(data->outfile, STDOUT_FILENO);
+	close(data->outfile);
 	if (execve(data->path[data->cmd_count - 1], \
 		data->cmds[data->cmd_count - 1], envp) == -1)
 		error_exit(data, "command not found\n");
@@ -36,8 +37,8 @@ static void	last_child(t_data *data, char **envp)
 static void	middle_child(t_data *data, int i, char **envp)
 {
 	dup2(data->prev_fd, STDIN_FILENO);
-	dup2(data->fd[1], STDOUT_FILENO);
 	close(data->prev_fd);
+	dup2(data->fd[1], STDOUT_FILENO);
 	close(data->fd[0]);
 	close(data->fd[1]);
 	if (execve(data->path[i], data->cmds[i], envp) == -1)

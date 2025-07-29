@@ -48,7 +48,6 @@ static int	get_commands(char **argv, t_data *data)
 		start = 3;
 	else
 		start = 2;
-	data->cmds = malloc(sizeof(char **) * (data->cmd_count + 1));
 	if (!data->cmds)
 		return (1);
 	while (i < data->cmd_count)
